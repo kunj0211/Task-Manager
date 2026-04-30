@@ -1,9 +1,11 @@
 import React, { useContext } from 'react'
 import { useForm } from 'react-hook-form'
 import { TaskContext } from '../context/TaskContext'
+import { useNavigate } from 'react-router-dom'
 
 const CreateTask = () => {
 	const { addTask } = useContext(TaskContext)
+	const navigate = useNavigate()
 	const {
 		register,
 		handleSubmit,
@@ -18,6 +20,7 @@ const CreateTask = () => {
 		const success = await addTask(data)
 		if (success) {
 			reset()
+			navigate('/tasklist')
 		}
 	}
 
