@@ -13,7 +13,7 @@ const CreateTask = () => {
 		formState: { errors },
 	} = useForm({
 		mode: 'onSubmit',
-		reValidateMode: 'onSubmit',
+		reValidateMode: 'onChange',
 	})
 
 	const onSubmit = async (data) => {
@@ -39,14 +39,13 @@ const CreateTask = () => {
 						type='text'
 						placeholder='Task Title'
 						{...register('title', {
-							required: true,
-							validate: (value) => value.trim() !== '',
+							required: 'Title is required',
 						})}
 						className='w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm hover:shadow-md focus:shadow-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900 placeholder-gray-500 hover:border-blue-500 transition-all duration-300'
 					/>
 					{errors.title && (
 						<span className='text-sm text-red-500 ml-1'>
-							Title is required
+							{errors.title.message}
 						</span>
 					)}
 				</div>
@@ -62,7 +61,9 @@ const CreateTask = () => {
 
 				<div className='flex flex-col gap-1'>
 					<select
-						{...register('status', { required: true })}
+						{...register('status', {
+							required: 'Status is required',
+						})}
 						className='w-full px-3 py-2.5 border border-gray-300 rounded-lg shadow-sm hover:shadow-md focus:shadow-md focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white text-gray-900 hover:border-blue-500 transition-all duration-300'
 					>
 						<option value='' className='bg-white text-gray-900'>
@@ -83,7 +84,7 @@ const CreateTask = () => {
 					</select>
 					{errors.status && (
 						<span className='text-sm text-red-500 ml-1'>
-							Status is required
+							{errors.status.message}
 						</span>
 					)}
 				</div>
