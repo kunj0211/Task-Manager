@@ -64,7 +64,8 @@ const TaskList = () => {
 	}
 
 	const handleEdit = (id) => {
-		navigate(`/edit/${id}`)
+		const encodedId = btoa(id)
+		navigate(`/edit/${encodedId}`)
 	}
 
 	const handleSearch = (value) => {

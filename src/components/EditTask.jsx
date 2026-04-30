@@ -4,7 +4,14 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { TaskContext } from '../context/TaskContext'
 
 const EditTask = () => {
-	const { id } = useParams()
+	const { id: encodedId } = useParams()
+	let id
+	try {
+		id = atob(encodedId)
+	} catch (e) {
+		id = null
+		console.log(e)
+	}
 	const navigate = useNavigate()
 	const { tasks, updateTask } = useContext(TaskContext)
 	const task = tasks.find((taskItem) => String(taskItem.id) === String(id))
