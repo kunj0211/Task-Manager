@@ -89,6 +89,7 @@ const EditTask = () => {
 						{...register('title', {
 							required: 'Title is required',
 						})}
+						maxLength={20}
 						className='w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm hover:shadow-md focus:shadow-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900 placeholder-gray-500 hover:border-blue-500 transition-all duration-300'
 					/>
 					{errors.title && (
