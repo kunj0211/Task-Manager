@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { TaskContext } from '../context/TaskContext'
 import DeleteModal from './DeleteModal'
+import CryptoJS from 'crypto-js'
 
 const TaskList = () => {
 	const { tasks, deleteTask, isLoading } = useContext(TaskContext)
@@ -64,8 +65,18 @@ const TaskList = () => {
 	}
 
 	const handleEdit = (id) => {
-		const encodedId = btoa(id)
-		navigate(`/edit/${encodedId}`)
+		const secretUuid = import.meta.env.VITE_ENCRYPTION_KEY
+		const key = CryptoJS.enc.Utf8.parse(secretUuid.substring(0, 16))
+		const iv = CryptoJS.enc.Utf8.parse(secretUuid.substring(0, 16))
+
+		const encrypted = CryptoJS.AES.encrypt(String(id), key, { iv: iv })
+		const hexStr = encrypted.ciphertext.toString(CryptoJS.enc.Hex)
+
+		const uuidLikeId = hexStr.replace(
+			/(.{8})(.{4})(.{4})(.{4})(.{12})/,
+			'$1-$2-$3-$4-$5',
+		)
+		navigate(`/edit/${uuidLikeId}`)
 	}
 
 	const handleSearch = (value) => {

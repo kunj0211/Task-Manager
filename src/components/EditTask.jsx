@@ -2,12 +2,23 @@ import { useContext, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate, useParams } from 'react-router-dom'
 import { TaskContext } from '../context/TaskContext'
+import CryptoJS from 'crypto-js'
 
 const EditTask = () => {
 	const { id: encodedId } = useParams()
+	const secretUuid = import.meta.env.VITE_ENCRYPTION_KEY
 	let id
 	try {
-		id = atob(encodedId)
+		const key = CryptoJS.enc.Utf8.parse(secretUuid.substring(0, 16))
+		const iv = CryptoJS.enc.Utf8.parse(secretUuid.substring(0, 16))
+
+		const unformatted = encodedId.replace(/-/g, '')
+		const cipherParams = CryptoJS.lib.CipherParams.create({
+			ciphertext: CryptoJS.enc.Hex.parse(unformatted),
+		})
+
+		const bytes = CryptoJS.AES.decrypt(cipherParams, key, { iv: iv })
+		id = bytes.toString(CryptoJS.enc.Utf8)
 	} catch (e) {
 		id = null
 		console.log(e)
@@ -121,10 +132,7 @@ const EditTask = () => {
 						<option value='Todo' className='bg-white text-gray-900'>
 							Todo
 						</option>
-						<option
-							value='In Progress'
-							className='bg-white text-gray-900'
-						>
+						<option value='In Progress' className='bg-white text-gray-900'>
 							In Progress
 						</option>
 						<option value='Done' className='bg-white text-gray-900'>
