@@ -12,6 +12,7 @@ const TaskList = () => {
 	const [taskToDelete, setTaskToDelete] = useState(null)
 
 	const [currentPage, setCurrentPage] = useState(1)
+	const [tasksPerPageInput, setTasksPerPageInput] = useState('5')
 	const [tasksPerPage, setTasksPerPage] = useState(5)
 
 	const displayedTasks = tasks.filter((task) => {
@@ -26,10 +27,16 @@ const TaskList = () => {
 		return matchesSearch && matchesStatus
 	})
 
-	const indexOfLastTask = currentPage * tasksPerPage
-	const indexOfFirstTask = indexOfLastTask - tasksPerPage
+	const parsedTasksPerPageInput = parseInt(tasksPerPageInput, 10)
+	const isValidTasksPerPageInput =
+		Number.isInteger(parsedTasksPerPageInput) && parsedTasksPerPageInput > 0
+
+	const validTasksPerPage = tasksPerPage > 0 ? tasksPerPage : 1
+
+	const indexOfLastTask = currentPage * validTasksPerPage
+	const indexOfFirstTask = indexOfLastTask - validTasksPerPage
 	const currentTasks = displayedTasks.slice(indexOfFirstTask, indexOfLastTask)
-	const totalPages = Math.ceil(displayedTasks.length / tasksPerPage)
+	const totalPages = Math.ceil(displayedTasks.length / validTasksPerPage)
 
 	const pageNumbers = []
 	for (let i = 1; i <= totalPages; i++) {
@@ -90,8 +97,22 @@ const TaskList = () => {
 	}
 
 	const handleTasksPerPageChange = (value) => {
-		setTasksPerPage(Number(value))
-		setCurrentPage(1)
+		if (/^\d*$/.test(value)) {
+			setTasksPerPageInput(value)
+		}
+	}
+
+	const handleApplyTasksPerPage = () => {
+		if (isValidTasksPerPageInput) {
+			if (parsedTasksPerPageInput <= 20) {
+				setTasksPerPage(parsedTasksPerPageInput)
+				setCurrentPage(1)
+			} else {
+				setTasksPerPageInput(String(tasksPerPage))
+			}
+		} else {
+			setTasksPerPageInput(String(tasksPerPage))
+		}
 	}
 
 	if (isLoading) {
@@ -172,13 +193,13 @@ const TaskList = () => {
 										onClick={() =>
 											handleEdit(task.id, task)
 										}
-										className='px-6 py-2 rounded-md bg-blue-600 text-white font-medium hover:bg-blue-700 shadow-sm transition'
+										className='px-6 py-2 rounded-md bg-blue-600 text-white font-medium hover:bg-blue-700 shadow-sm transition cursor-pointer'
 									>
 										Edit
 									</button>
 									<button
 										onClick={() => handleDeleteClick(task)}
-										className='px-6 py-2 rounded-md bg-red-600 text-white font-medium hover:bg-red-700 shadow-sm transition'
+										className='px-6 py-2 rounded-md bg-red-600 text-white font-medium hover:bg-red-700 shadow-sm transition cursor-pointer'
 									>
 										Delete
 									</button>
@@ -217,18 +238,26 @@ const TaskList = () => {
 							>
 								Per page:
 							</label>
-							<select
+							<input
+								type='text'
 								id='tasksPerPage'
-								value={tasksPerPage}
+								value={tasksPerPageInput}
+								maxLength={2}
 								onChange={(e) =>
 									handleTasksPerPageChange(e.target.value)
 								}
-								className='px-2 py-1 text-sm border border-gray-300 rounded-md bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 hover:border-blue-500 transition-all duration-300'
+								className='px-2 py-1 text-sm border border-gray-300 rounded-md bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 hover:border-blue-500 transition-all duration-300 w-10'
+							/>
+							<button
+								onClick={handleApplyTasksPerPage}
+								disabled={
+									!isValidTasksPerPageInput ||
+									parsedTasksPerPageInput === tasksPerPage
+								}
+								className='px-3 py-1 text-sm rounded-md bg-blue-600 text-white font-semibold  cursor-pointer hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-default transition-all duration-200'
 							>
-								<option value={5}>5</option>
-								<option value={10}>10</option>
-								<option value={25}>25</option>
-							</select>
+								Apply
+							</button>
 						</div>
 					</div>
 
@@ -241,10 +270,10 @@ const TaskList = () => {
 									)
 								}
 								disabled={currentPage === 1}
-								className={`relative inline-flex items-center rounded-l-md px-4 py-2 text-sm font-semibold border border-gray-300 focus:z-10 ${
+								className={`relative inline-flex items-center rounded-l-md px-4 py-2 text-sm font-semibold  border border-gray-300 focus:z-10 ${
 									currentPage === 1
 										? 'bg-gray-100 text-gray-400'
-										: 'bg-white text-gray-900 hover:bg-gray-50'
+										: 'bg-white text-gray-900 hover:bg-gray-50 cursor-pointer'
 								} transition-colors`}
 							>
 								Previous
@@ -254,7 +283,7 @@ const TaskList = () => {
 								<button
 									key={num}
 									onClick={() => setCurrentPage(num)}
-									className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold border border-gray-300 focus:z-10 transition-colors ${
+									className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold cursor-pointer border border-gray-300 focus:z-10 transition-colors ${
 										currentPage === num
 											? 'bg-blue-600 text-white'
 											: 'bg-white text-gray-700 hover:bg-gray-50'
@@ -274,7 +303,7 @@ const TaskList = () => {
 								className={`relative inline-flex items-center rounded-r-md px-4 py-2 text-sm font-semibold border border-gray-300 focus:z-10 ${
 									currentPage === totalPages
 										? 'bg-gray-100 text-gray-400 '
-										: 'bg-white text-gray-900 hover:bg-gray-50'
+										: 'bg-white text-gray-900 hover:bg-gray-50 cursor-pointer'
 								} transition-colors`}
 							>
 								Next
